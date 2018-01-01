@@ -42,10 +42,13 @@ def send_to_target_api(payload):
     alfred.info("Making post request to: {0}".format(target_api_url))
     try:
         r = requests.post(target_api_url, data=payload)
-    except requests.exceptions.RequestException as e:  # This is the correct syntax
+    except requests.exceptions.RequestException as e:
         alfred.critical("Critical error trying to post to api: {0}".format(e))
+        sys.exit(1)
     except requests.exceptions.HTTPError as err:
         alfred.error("HTTP error trying to post to api: {0}".format(err))
+        sys.exit(1)
+
 
 def stringify_storops(property):
     """Method to transform the properties of storops into simple strings
@@ -67,6 +70,7 @@ def stringify_storops(property):
     alfred.debug("Stringifying: {0} to {1}".format(property, output))
 
     return(output)
+
 
 def calculate_capacities(pools):
     """This method taks the outout of the get_pools() call and returns a dict
@@ -99,38 +103,44 @@ def calculate_capacities(pools):
                 output[key] = pool["VNXPool"][value]/1024
     return(output)
 
-# Create VNX object
-vnx = VNXSystem(array_ip,username,password)
-alfred.info("Collecting information of Array: {0}"
-            .format(stringify_storops(vnx.name)))
 
-# Create empty dictionary of the eventual payload
-array_details = {}
+def main():
+    # Create VNX object
+    vnx = VNXSystem(array_ip,username,password)
+    alfred.info("Collecting information of Array: {0}"
+                .format(stringify_storops(vnx.name)))
 
-# Collect necessary properties with as few calls to the array as required
-# The vnx object has a base set of cached properties and only makes the call
-# once. get_pool() makes a call each time so we call it once and parse out all
-# of the data in a method call
+    # Create empty dictionary of the eventual payload
+    array_details = {}
 
-array_details["array_name"]                 = stringify_storops(vnx.name)
-array_details["serial_number"]              = stringify_storops(vnx.serial)
-array_details["vendor"]                     = "DellEMC"
-array_details["model"]                      = stringify_storops(vnx.model)
-array_details["tier"]                       = "Standard"
+    # Collect necessary properties with as few calls to the array as required
+    # The vnx object has a base set of cached properties and only makes the
+    #call once. get_pool() makes a call each time so we call it once and parse
+    # out all of the data in a method call
 
-alfred.debug("Midpoint: Current payload {0}".format(array_details))
-# Calculate capacities
-capacities = calculate_capacities(json.loads(vnx.get_pool().json()))
+    array_details["array_name"]                 = stringify_storops(vnx.name)
+    array_details["serial_number"]              = stringify_storops(vnx.serial)
+    array_details["vendor"]                     = "DellEMC"
+    array_details["model"]                      = stringify_storops(vnx.model)
+    array_details["tier"]                       = "Standard"
 
-array_details["capacity"]                   = {}
-array_details["capacity"]["usable_tb"]      = capacities["usable_tb"]
-array_details["capacity"]["available_tb"]   = capacities["available_tb"]
-array_details["capacity"]["consumed_tb"]    = capacities["consumed_tb"]
+    alfred.debug("Midpoint: Current payload {0}".format(array_details))
+    # Calculate capacities
+    capacities = calculate_capacities(json.loads(vnx.get_pool().json()))
 
-alfred.debug("Getting read to send payload to API endpoint. "+
-            "Here is the payload: {0}".format(array_details))
+    array_details["capacity"]                   = {}
+    array_details["capacity"]["usable_tb"]      = capacities["usable_tb"]
+    array_details["capacity"]["available_tb"]   = capacities["available_tb"]
+    array_details["capacity"]["consumed_tb"]    = capacities["consumed_tb"]
 
-# Post the array_details to the API Endpoint
-send_to_target_api(array_details)
+    alfred.debug("Getting read to send payload to API endpoint. "+
+                "Here is the payload: {0}".format(array_details))
 
-alfred.info("Finished VNX_Collector script in {0} seconds".format("%.3f" % (time.time() - start_time)))
+    # Post the array_details to the API Endpoint
+    send_to_target_api(array_details)
+
+    alfred.info("Finished VNX_Collector script in {0} seconds"
+                .format("%.3f" % (time.time() - start_time)))
+
+if __name__ == "__main__":
+    main()
