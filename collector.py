@@ -106,7 +106,14 @@ def calculate_capacities(pools):
 
 def main():
     # Create VNX object
-    vnx = VNXSystem(array_ip,username,password)
+    try:
+        vnx = VNXSystem(array_ip,username,password)
+    except:
+        alfred.error("Could not connect to {0} at IP: {1}"
+                     .format(stringify_storops(vnx.name),array_ip))
+        alfred.info("Finished VNX_Collector script in {0} seconds"
+                .format("%.3f" % (time.time() - start_time)))
+
     alfred.info("Collecting information of Array: {0}"
                 .format(stringify_storops(vnx.name)))
 
