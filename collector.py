@@ -44,9 +44,13 @@ def send_to_target_api(payload):
         r = requests.post(target_api_url, data=payload)
     except requests.exceptions.RequestException as e:
         alfred.critical("Critical error trying to post to api: {0}".format(e))
+        alfred.info("Finished VNX_Collector script in {0} seconds"
+                .format("%.3f" % (time.time() - start_time)))
         sys.exit(1)
     except requests.exceptions.HTTPError as err:
         alfred.error("HTTP error trying to post to api: {0}".format(err))
+        alfred.info("Finished VNX_Collector script in {0} seconds"
+                .format("%.3f" % (time.time() - start_time)))
         sys.exit(1)
 
 
@@ -113,6 +117,7 @@ def main():
                      .format(stringify_storops(vnx.name),array_ip))
         alfred.info("Finished VNX_Collector script in {0} seconds"
                 .format("%.3f" % (time.time() - start_time)))
+        sys.exit(1)
 
     alfred.info("Collecting information of Array: {0}"
                 .format(stringify_storops(vnx.name)))
