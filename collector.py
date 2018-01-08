@@ -40,8 +40,9 @@ def send_to_target_api(payload):
         None
     """
     alfred.info("Making post request to: {0}".format(target_api_url))
+    json_payload = json.dumps(payload)
     try:
-        r = requests.post(target_api_url, data=payload)
+        r = requests.post(target_api_url, data=json_payload)
     except requests.exceptions.RequestException as e:
         alfred.critical("Critical error trying to post to api: {0}".format(e))
         alfred.info("Finished VNX_Collector script in {0} seconds"
@@ -154,6 +155,7 @@ def main():
     alfred.info("Finished VNX_Collector script in {0} seconds"
                 .format("%.3f" % (time.time() - start_time)))
 
+    sys.exit(0)
+
 if __name__ == "__main__":
     main()
-    sys.exit(0)
