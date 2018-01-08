@@ -127,8 +127,8 @@ def main():
 
     # Collect necessary properties with as few calls to the array as required
     # The vnx object has a base set of cached properties and only makes the
-    #call once. get_pool() makes a call each time so we call it once and parse
-    # out all of the data in a method call
+    # call once. get_pool() makes a call each time so we call it once and parse
+    # out all of the data in a method call.
 
     array_details["array_name"]                 = stringify_storops(vnx.name)
     array_details["serial_number"]              = stringify_storops(vnx.serial)
@@ -156,3 +156,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    sys.exit(0)
