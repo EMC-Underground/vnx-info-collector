@@ -16,6 +16,10 @@ RUN yum -y update; yum clean all && \
     pip install requests && \
     pip install coloredlogs
 
+COPY ./ca.crt /etc/pki/ca-trust/source/anchors
+
+RUN update-ca-trust
+
 COPY ./collector.py /
 
 CMD ["/collector.py"]

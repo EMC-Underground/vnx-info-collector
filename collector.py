@@ -147,7 +147,7 @@ def main():
     array_details["capacity"]["consumed_tb"]    = capacities["consumed_tb"]
 
     alfred.debug("Getting read to send payload to API endpoint. "+
-                "Here is the payload: {0}".format(array_details))
+                "Here is the payload: {0}".format(json.dumps(array_details)))
 
     # Post the array_details to the API Endpoint
     send_to_target_api(array_details)
