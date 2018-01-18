@@ -42,7 +42,7 @@ def send_to_target_api(payload):
     alfred.info("Making post request to: {0}".format(target_api_url))
     json_payload = json.dumps(payload)
     try:
-        r = requests.post(target_api_url, data=json_payload)
+        r = requests.post(target_api_url, data=json_payload, verify="/etc/pki/tls/certs/ca-bundle.crt")
     except requests.exceptions.RequestException as e:
         alfred.critical("Critical error trying to post to api: {0}".format(e))
         alfred.info("Finished VNX_Collector script in {0} seconds"
